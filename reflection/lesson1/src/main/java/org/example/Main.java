@@ -3,7 +3,9 @@ package org.example;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -18,6 +20,18 @@ import static org.example.RainbowColor.YELLOW;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
+
+        var phaser = new Phaser();
+        new Thread(phaser::register).start();
+        //phaser.register();
+        //phaser.arrive();
+        Thread.sleep(500);
+        var i1 = phaser.arriveAndAwaitAdvance();
+        var i2 = phaser.arriveAndAwaitAdvance();
+        var i3 = phaser.arriveAndDeregister();
+        phaser.arriveAndAwaitAdvance();
+
+
         var colors = List.of(RED, RED, YELLOW, GREEN, CYAN, BLUE, MAGENTA);
         var strings = List.of("Каждый ", "охотник ", "желает ", "знать ", "где ", "сидит ", "фазан\n");
         System.out.println("Rainbow with countdown latch!");
@@ -25,27 +39,29 @@ public class Main {
         IntStream.range(0, 7).mapToObj(i -> new Thread(new RainbowCDL(colors.get(i) + strings.get(i) + RESET, cdlList.get(i), cdlList.get(i + 1)))).forEach(Thread::start);
         cdlList.get(7).await();
 
-        System.out.println("Rainbow with cycle barrier!");
-        var cblList = Stream.generate(() -> new CyclicBarrier(2)).limit(8).toList();
-        IntStream.range(0, 7).mapToObj(i -> {
-            CyclicBarrier curr = cblList.get(i);
-            CyclicBarrier next = i < 6 ? cblList.get(i + 1) : cblList.get(0);
-            CyclicBarrier finall = i == 6 ? cblList.get(7) : null;
-            return new Thread(new RainbowCB(colors.get(i) + strings.get(i) + RESET, curr, next, finall));
-        }).forEach(Thread::start);
-        cblList.get(0).await();
-        cblList.get(7).await();
+//        System.out.println("Rainbow with cycle barrier!");
+//        var cblList = Stream.generate(() -> new CyclicBarrier(2)).limit(8).toList();
+//        IntStream.range(0, 7).mapToObj(i -> {
+//            CyclicBarrier curr = cblList.get(i);
+//            CyclicBarrier next = i < 6 ? cblList.get(i + 1) : cblList.get(0);
+//            CyclicBarrier finall = i == 6 ? cblList.get(7) : null;
+//            return new Thread(new RainbowCB(colors.get(i) + strings.get(i) + RESET, curr, next, finall));
+//        }).forEach(Thread::start);
+//        cblList.get(0).await();
+//        cblList.get(7).await();
 
 
-        var list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        list
-                .stream()
-                .skip(2)
-                .limit(6)
-                .filter(i -> (i % 2) == 0)
-                .map(i -> i * 2)
-                .peek(System.out::println)
-                .forEach(System.out::println);
+        System.out.println("Rainbow with blocking queue");
+        var bq = new LinkedBlockingDeque<String>(1);
+        IntStream.range(0, 7).mapToObj(i -> new Thread(new RainbowProducerBQ(bq, colors.get(i) + strings.get(i) + RESET, 2))).forEach(Thread::start);
+        IntStream.range(0, 14).mapToObj(i -> new Thread(new RainbowConsumerBQ(bq))).forEach(t -> {
+            try {
+                t.start();
+                t.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         var originD = new Department();
         originD.setName("Over code");
@@ -57,6 +73,16 @@ public class Main {
         System.out.println(originD);
         System.out.println(copyD);
         System.out.printf("It's same instances: %b\n", originD == copyD);
+
+        var list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        list
+                .stream()
+                .skip(2)
+                .limit(6)
+                .filter(i -> (i % 2) == 0)
+                .map(i -> i * 2)
+                .peek(System.out::println)
+                .forEach(System.out::println);
     }
 
     public static class Department {
