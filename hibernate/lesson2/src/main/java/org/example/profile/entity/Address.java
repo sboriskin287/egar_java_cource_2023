@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "addreses")
+@Table(name = "addresses")
 @Data
 @Accessors(chain = true)
 public class Address {

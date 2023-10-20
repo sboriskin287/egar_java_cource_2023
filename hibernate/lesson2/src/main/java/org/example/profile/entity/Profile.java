@@ -1,7 +1,12 @@
 package org.example.profile.entity;
 
+import lombok.Data;
+import org.hibernate.annotations.Where;
+
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -10,16 +15,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.MapKey;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import lombok.Data;
-
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "profiles")
@@ -45,11 +50,19 @@ public class Profile {
     private Address address;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "executor")
-    private List<Task> tasks = new ArrayList<>();
+    @MapKey(name = "name")
+    @Where(clause = "name like '%Помпеи%'")
+    private Map<String, Task> tasks = new HashMap<>();
+
+    @ElementCollection
+    @CollectionTable(name = "tasks", joinColumns = @JoinColumn(name = "profile_id"))
+    @MapKeyColumn(name = "name")
+    @Column(name = "description")
+    private Map<String, String> taskInfo = new HashMap<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "profiles_show_room",
+    @JoinTable(name = "profile_showroom",
             joinColumns = @JoinColumn(name = "profile_id"),
-            inverseJoinColumns = @JoinColumn(name = "show_room_id"))
-    private List<ShowRoom> showRooms = new LinkedList<>();
+            inverseJoinColumns = @JoinColumn(name = "showroom_id"))
+    private List<Showroom> showrooms = new LinkedList<>();
 }

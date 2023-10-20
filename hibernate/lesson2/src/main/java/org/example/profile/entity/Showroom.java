@@ -1,6 +1,7 @@
 package org.example.profile.entity;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -16,17 +17,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Entity
-@Table(name = "show_room")
+@Table(name = "showroom")
 @Data
-public class ShowRoom {
+public class Showroom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "profiles_show_room",
-            joinColumns = @JoinColumn(name = "show_room_id"),
+    private String title;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "profile_showroom",
+            joinColumns = @JoinColumn(name = "showroom_id"),
             inverseJoinColumns = @JoinColumn(name = "profile_id"))
+    @ToString.Exclude
     private List<Profile> profiles = new LinkedList<>();
 }
