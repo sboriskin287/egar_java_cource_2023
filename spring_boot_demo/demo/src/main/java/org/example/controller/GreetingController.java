@@ -1,4 +1,4 @@
-package ru.egartech.controller;
+package org.example.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 public class GreetingController {
 
     @GetMapping("/")
-    public String greeting(HttpServletRequest req, Model model) {
-        model.addAttribute("ip", req.getRemoteHost());
+    public String greeting(HttpServletRequest req, Model mv) {
+        mv.addAttribute("ip", req.getRemoteHost());
         return "greeting";
     }
 }

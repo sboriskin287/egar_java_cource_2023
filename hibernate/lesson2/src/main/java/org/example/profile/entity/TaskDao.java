@@ -18,6 +18,7 @@ public class TaskDao {
     }
 
     public Task save(TaskDto taskDto) {
+        String s1 = "string";
         var em = emf.createEntityManager();
         var pv = em.find(Profile.class, taskDto.getExecutorId());
         var task = new Task()
