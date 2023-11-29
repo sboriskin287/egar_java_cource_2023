@@ -4,6 +4,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 
@@ -15,7 +16,8 @@ public class ProjectReactorExample {
                 .fromArray(arr)
                 .filter(i -> i % 2 != 0)
                 .map(i -> "str" + i)
-                //.delayElements(Duration.ofMillis(1000))
+                .subscribeOn(Schedulers.parallel())
+                .delayElements(Duration.ofMillis(1000))
                 .subscribe(new Subscriber<>() {
                     private Subscription s;
                     private int count;

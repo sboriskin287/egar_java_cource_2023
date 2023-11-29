@@ -3,15 +3,15 @@ package org.example.customprojectreactor.subscriber.impl;
 import org.example.customprojectreactor.subscriber.Subscriber;
 import org.example.customprojectreactor.subscription.Subscription;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
-public class MapSubscriber<K, V> extends Subscriber<K> {
-    private final Subscriber<V> actual;
-    private final Function<K, V> mapper;
+public class FilterSubscriber<T> extends Subscriber<T> {
+    private final Subscriber<T> actual;
+    private final Predicate<T> condition;
 
-    public MapSubscriber(Subscriber<V> actual, Function<K, V> mapper) {
+    public FilterSubscriber(Subscriber<T> actual, Predicate<T> condition) {
         this.actual = actual;
-        this.mapper = mapper;
+        this.condition = condition;
     }
 
     @Override
@@ -20,9 +20,10 @@ public class MapSubscriber<K, V> extends Subscriber<K> {
     }
 
     @Override
-    public void onNext(K v) {
-        var mapNext = mapper.apply(v);
-        actual.onNext(mapNext);
+    public void onNext(T t) {
+        if (condition.test(t)) {
+            actual.onNext(t);
+        }
     }
 
     @Override

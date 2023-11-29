@@ -21,5 +21,6 @@ public class ArraySubscription<T> extends Subscription {
                 subscriber.onError(error);
             }
         }
+        subscriber.onComplete();
     }
 }

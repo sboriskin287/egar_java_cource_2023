@@ -3,16 +3,18 @@ package org.example.customprojectreactor.subscriber.impl;
 import org.example.customprojectreactor.subscriber.Subscriber;
 import org.example.customprojectreactor.subscription.Subscription;
 
-import java.util.function.Function;
+import java.util.concurrent.ExecutorService;
 
-public class MapSubscriber<K, V> extends Subscriber<K> {
-    private final Subscriber<V> actual;
-    private final Function<K, V> mapper;
+public class ParallelSubscriber<T> extends Subscriber<T> {
+    private final Subscriber<T> actual;
+    private final ExecutorService pool;
 
-    public MapSubscriber(Subscriber<V> actual, Function<K, V> mapper) {
+    public ParallelSubscriber(Subscriber<T> actual,
+                              ExecutorService pool) {
         this.actual = actual;
-        this.mapper = mapper;
+        this.pool = pool;
     }
+
 
     @Override
     public void onSubscribe(Subscription subscription) {
@@ -20,9 +22,8 @@ public class MapSubscriber<K, V> extends Subscriber<K> {
     }
 
     @Override
-    public void onNext(K v) {
-        var mapNext = mapper.apply(v);
-        actual.onNext(mapNext);
+    public void onNext(T t) {
+        pool.submit(() -> actual.onNext(t));
     }
 
     @Override
@@ -33,5 +34,6 @@ public class MapSubscriber<K, V> extends Subscriber<K> {
     @Override
     public void onComplete() {
         actual.onComplete();
+        pool.shutdown();
     }
 }

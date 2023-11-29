@@ -7,8 +7,10 @@ import org.example.customprojectreactor.subscription.Subscription;
 public class CPRExample {
     public static void start() {
         Publisher
-                .fromArray(1,2,3,4,5,6,7,8,9)
+                .fromArray(0,1,2,3,4,5,6,7,8,9)
+                .filter(i -> i % 2 == 1)
                 .map(i -> "str" + i)
+                .parallel(10)
                 .subscribe(new Subscriber<>() {
 
                     @Override
@@ -18,6 +20,11 @@ public class CPRExample {
 
                     @Override
                     public void onNext(String integer) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                         System.out.println(integer);
                     }
 
