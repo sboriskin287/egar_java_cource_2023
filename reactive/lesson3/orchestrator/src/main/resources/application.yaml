@@ -1,0 +1,8 @@
+server:
+  port: 8082
+
+profile:
+  url: ${PROFILE_URL:http://localhost:8080/profile}
+
+task:
+  url: ${TASK_URL:http://localhost:8081/task}

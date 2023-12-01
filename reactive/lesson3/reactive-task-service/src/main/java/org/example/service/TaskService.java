@@ -1,9 +1,9 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.ProfileDto;
-import org.example.mapper.ProfileMapper;
-import org.example.repo.ProfileRepo;
+import org.example.dto.TaskDto;
+import org.example.mapper.TaskMapper;
+import org.example.repo.TaskRepo;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,18 +12,18 @@ import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
-public class ProfileService {
-    private final ProfileRepo repo;
-    private final ProfileMapper mapper;
+public class TaskService {
+    private final TaskRepo repo;
+    private final TaskMapper mapper;
 
-    public Mono<ProfileDto> findProfile(Integer id) {
+    public Mono<TaskDto> findTask(Integer id) {
         return repo
                 .findById(id)
                 .delayElement(Duration.ofMinutes(2))
                 .map(mapper::toDto);
     }
 
-    public Mono<ProfileDto> createProfile(ProfileDto dto) {
+    public Mono<TaskDto> createTask(TaskDto dto) {
         return Mono
                 .just(dto)
                 .map(mapper::toEntity)
@@ -31,9 +31,15 @@ public class ProfileService {
                 .map(mapper::toDto);
     }
 
-    public Flux<ProfileDto> findAllProfiles() {
+    public Flux<TaskDto> findAllTask() {
         return repo
                 .findAll()
+                .map(mapper::toDto);
+    }
+
+    public Flux<TaskDto> findTasksByProfileId(Integer profileId) {
+        return repo
+                .findByProfileId(profileId)
                 .map(mapper::toDto);
     }
 }

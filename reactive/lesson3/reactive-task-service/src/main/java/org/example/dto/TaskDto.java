@@ -5,9 +5,9 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class ProfileDto {
+public class TaskDto {
     private Integer id;
-    private Integer age;
-    private String fullName;
+    private String name;
+    private String description;
 
 }

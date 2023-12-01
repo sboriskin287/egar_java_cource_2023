@@ -1,8 +1,8 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.ProfileDto;
-import org.example.service.ProfileService;
+import org.example.dto.TaskDto;
+import org.example.service.TaskService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,23 +13,28 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/task")
 @RequiredArgsConstructor
-public class ProfileController {
-    private final ProfileService service;
+public class TaskController {
+    private final TaskService service;
 
     @GetMapping("/{id}")
-    public Mono<ProfileDto> findProfile(@PathVariable Integer id) {
-        return service.findProfile(id);
+    public Mono<TaskDto> findTask(@PathVariable Integer id) {
+        return service.findTask(id);
     }
 
     @GetMapping
-    public Flux<ProfileDto> findAllProfiles() {
-        return service.findAllProfiles();
+    public Flux<TaskDto> findAllTasks() {
+        return service.findAllTask();
     }
 
     @PostMapping
-    public Mono<ProfileDto> create(@RequestBody ProfileDto dto) {
-        return service.createProfile(dto);
+    public Mono<TaskDto> createTask(@RequestBody TaskDto dto) {
+        return service.createTask(dto);
+    }
+
+    @GetMapping("/profile/{id}")
+    public Flux<TaskDto> findTasksByProfileId(@PathVariable Integer id) {
+        return service.findTasksByProfileId(id);
     }
 }

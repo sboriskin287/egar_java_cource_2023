@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
@@ -19,7 +17,6 @@ public class ProfileService {
     public Mono<ProfileDto> findProfile(Integer id) {
         return repo
                 .findById(id)
-                .delayElement(Duration.ofMinutes(2))
                 .map(mapper::toDto);
     }
 
